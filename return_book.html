@@ -1,0 +1,50 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8 mx-auto">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="mb-0"><i class="fas fa-arrow-left me-2"></i>Return Book</h3>
+            </div>
+            <div class="card-body">
+                {% if form.issue_id.choices|length == 0 %}
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle me-2"></i>There are no books currently issued that can be returned.
+                </div>
+                <div class="text-center mt-3">
+                    <a href="{{ url_for('issue_book') }}" class="btn btn-primary">Issue a Book</a>
+                </div>
+                {% else %}
+                <form method="POST" action="{{ url_for('return_book') }}">
+                    {{ form.hidden_tag() }}
+                    
+                    <div class="row g-3">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                {{ form.issue_id.label(class="form-label") }}
+                                {{ form.issue_id(class="form-select") }}
+                                {% if form.issue_id.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {% for error in form.issue_id.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="col-12 mt-4">
+                            <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                                <a href="{{ url_for('circulation') }}" class="btn btn-secondary me-md-2">Cancel</a>
+                                {{ form.submit(class="btn btn-success") }}
+                            </div>
+                        </div>
+                    </div>
+                </form>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,113 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<div class="mb-4">
+    <h1><i class="fas fa-history me-2"></i>Circulation History</h1>
+    <p class="text-muted">Complete record of all book transactions</p>
+</div>
+
+{% if issues.items %}
+<div class="card">
+    <div class="table-responsive">
+        <table class="table table-hover mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th>ID</th>
+                    <th>Book</th>
+                    <th>Member</th>
+                    <th>Issued On</th>
+                    <th>Due Date</th>
+                    <th>Return Date</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for issue in issues.items %}
+                <tr>
+                    <td>{{ issue.id }}</td>
+                    <td>{{ issue.book.title }}</td>
+                    <td>{{ issue.member.full_name }}</td>
+                    <td>{{ issue.issue_date.strftime('%Y-%m-%d') }}</td>
+                    <td>{{ issue.due_date.strftime('%Y-%m-%d') }}</td>
+                    <td>
+                        {% if issue.returned %}
+                            {{ issue.return_date.strftime('%Y-%m-%d') }}
+                        {% else %}
+                            <span class="text-muted">Not returned</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if issue.returned %}
+                            {% if issue.return_date > issue.due_date %}
+                                <span class="badge bg-warning">Returned Late</span>
+                            {% else %}
+                                <span class="badge bg-success">Returned On Time</span>
+                            {% endif %}
+                        {% else %}
+                            {% if issue.due_date < now %}
+                                <span class="badge bg-danger">Overdue</span>
+                            {% else %}
+                                <span class="badge bg-primary">Active</span>
+                            {% endif %}
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Pagination -->
+<nav aria-label="History pagination" class="mt-4">
+    <ul class="pagination justify-content-center">
+        {% if issues.has_prev %}
+        <li class="page-item">
+            <a class="page-link" href="{{ url_for('history', page=issues.prev_num) }}">Previous</a>
+        </li>
+        {% else %}
+        <li class="page-item disabled">
+            <a class="page-link" href="#" tabindex="-1">Previous</a>
+        </li>
+        {% endif %}
+        
+        {% for num in issues.iter_pages(left_edge=1, right_edge=1, left_current=2, right_current=2) %}
+            {% if num %}
+                {% if num == issues.page %}
+                <li class="page-item active">
+                    <a class="page-link" href="{{ url_for('history', page=num) }}">{{ num }}</a>
+                </li>
+                {% else %}
+                <li class="page-item">
+                    <a class="page-link" href="{{ url_for('history', page=num) }}">{{ num }}</a>
+                </li>
+                {% endif %}
+            {% else %}
+                <li class="page-item disabled">
+                    <a class="page-link" href="#">...</a>
+                </li>
+            {% endif %}
+        {% endfor %}
+        
+        {% if issues.has_next %}
+        <li class="page-item">
+            <a class="page-link" href="{{ url_for('history', page=issues.next_num) }}">Next</a>
+        </li>
+        {% else %}
+        <li class="page-item disabled">
+            <a class="page-link" href="#" tabindex="-1">Next</a>
+        </li>
+        {% endif %}
+    </ul>
+</nav>
+{% else %}
+<div class="card">
+    <div class="card-body text-center py-5">
+        <i class="fas fa-book fa-4x mb-3 text-muted"></i>
+        <h3>No circulation history found</h3>
+        <p class="text-muted">Start issuing books to see the history here.</p>
+        <a href="{{ url_for('issue_book') }}" class="btn btn-primary mt-3">Issue a Book</a>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

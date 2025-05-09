@@ -1,0 +1,164 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1><i class="fas fa-book me-2"></i>Books</h1>
+    <a href="{{ url_for('add_book') }}" class="btn btn-primary">
+        <i class="fas fa-plus me-1"></i>Add New Book
+    </a>
+</div>
+
+<!-- Search Form -->
+<div class="card mb-4">
+    <div class="card-body">
+        <form method="GET" action="{{ url_for('books') }}" class="row g-3">
+            <div class="col-md-6">
+                <div class="input-group">
+                    <input type="text" class="form-control" id="query" name="query" placeholder="Search books..." value="{{ query }}">
+                    <button class="btn btn-primary" type="submit">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <select class="form-select" id="type" name="type">
+                    <option value="title" {% if search_type == 'title' %}selected{% endif %}>By Title</option>
+                    <option value="author" {% if search_type == 'author' %}selected{% endif %}>By Author</option>
+                    <option value="isbn" {% if search_type == 'isbn' %}selected{% endif %}>By ISBN</option>
+                    <option value="category" {% if search_type == 'category' %}selected{% endif %}>By Category</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <a href="{{ url_for('books') }}" class="btn btn-secondary w-100">Reset</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+{% if books.items %}
+<div class="card">
+    <div class="table-responsive">
+        <table class="table table-hover mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th>ISBN</th>
+                    <th>Title</th>
+                    <th>Author</th>
+                    <th>Category</th>
+                    <th>Year</th>
+                    <th>Quantity</th>
+                    <th>Available</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for book in books.items %}
+                <tr>
+                    <td>{{ book.isbn }}</td>
+                    <td>{{ book.title }}</td>
+                    <td>{{ book.author }}</td>
+                    <td>{% if book.category %}{{ book.category }}{% else %}<span class="text-muted">N/A</span>{% endif %}</td>
+                    <td>{% if book.year %}{{ book.year }}{% else %}<span class="text-muted">N/A</span>{% endif %}</td>
+                    <td>{{ book.quantity }}</td>
+                    <td>
+                        <span class="badge {% if book.available > 0 %}bg-success{% else %}bg-danger{% endif %}">
+                            {{ book.available }}
+                        </span>
+                    </td>
+                    <td>
+                        <div class="btn-group" role="group">
+                            <a href="{{ url_for('edit_book', id=book.id) }}" class="btn btn-sm btn-outline-primary">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                            <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteModal-{{ book.id }}">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                        
+                        <!-- Delete Modal -->
+                        <div class="modal fade" id="deleteModal-{{ book.id }}" tabindex="-1" aria-labelledby="deleteModalLabel-{{ book.id }}" aria-hidden="true">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="deleteModalLabel-{{ book.id }}">Confirm Deletion</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        Are you sure you want to delete <strong>{{ book.title }}</strong>?
+                                        <p class="text-danger mt-2 mb-0">This action cannot be undone.</p>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                        <form action="{{ url_for('delete_book', id=book.id) }}" method="POST">
+                                            <button type="submit" class="btn btn-danger">Delete</button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Pagination -->
+<nav aria-label="Book pagination" class="mt-4">
+    <ul class="pagination justify-content-center">
+        {% if books.has_prev %}
+        <li class="page-item">
+            <a class="page-link" href="{{ url_for('books', page=books.prev_num, query=query, type=search_type) }}">Previous</a>
+        </li>
+        {% else %}
+        <li class="page-item disabled">
+            <a class="page-link" href="#" tabindex="-1">Previous</a>
+        </li>
+        {% endif %}
+        
+        {% for num in books.iter_pages(left_edge=1, right_edge=1, left_current=2, right_current=2) %}
+            {% if num %}
+                {% if num == books.page %}
+                <li class="page-item active">
+                    <a class="page-link" href="{{ url_for('books', page=num, query=query, type=search_type) }}">{{ num }}</a>
+                </li>
+                {% else %}
+                <li class="page-item">
+                    <a class="page-link" href="{{ url_for('books', page=num, query=query, type=search_type) }}">{{ num }}</a>
+                </li>
+                {% endif %}
+            {% else %}
+                <li class="page-item disabled">
+                    <a class="page-link" href="#">...</a>
+                </li>
+            {% endif %}
+        {% endfor %}
+        
+        {% if books.has_next %}
+        <li class="page-item">
+            <a class="page-link" href="{{ url_for('books', page=books.next_num, query=query, type=search_type) }}">Next</a>
+        </li>
+        {% else %}
+        <li class="page-item disabled">
+            <a class="page-link" href="#" tabindex="-1">Next</a>
+        </li>
+        {% endif %}
+    </ul>
+</nav>
+{% else %}
+<div class="card">
+    <div class="card-body text-center py-5">
+        <i class="fas fa-book fa-4x mb-3 text-muted"></i>
+        <h3>No books found</h3>
+        {% if query %}
+        <p class="text-muted">No results match your search criteria.</p>
+        <a href="{{ url_for('books') }}" class="btn btn-primary mt-3">Clear Search</a>
+        {% else %}
+        <p class="text-muted">Start by adding some books to your library.</p>
+        <a href="{{ url_for('add_book') }}" class="btn btn-primary mt-3">Add Your First Book</a>
+        {% endif %}
+    </div>
+</div>
+{% endif %}
+{% endblock %}

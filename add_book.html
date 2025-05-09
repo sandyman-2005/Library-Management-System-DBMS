@@ -1,0 +1,127 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8 mx-auto">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="mb-0"><i class="fas fa-plus-circle me-2"></i>Add New Book</h3>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="{{ url_for('add_book') }}">
+                    {{ form.hidden_tag() }}
+                    
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                {{ form.isbn.label(class="form-label") }}
+                                {{ form.isbn(class="form-control", placeholder="Enter ISBN") }}
+                                {% if form.isbn.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {% for error in form.isbn.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                                <small class="form-text text-muted">Unique ISBN for the book</small>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                {{ form.year.label(class="form-label") }}
+                                {{ form.year(class="form-control", placeholder="Publication Year") }}
+                                {% if form.year.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {% for error in form.year.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                {{ form.title.label(class="form-label") }}
+                                {{ form.title(class="form-control", placeholder="Enter book title") }}
+                                {% if form.title.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {% for error in form.title.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                {{ form.author.label(class="form-label") }}
+                                {{ form.author(class="form-control", placeholder="Enter author name") }}
+                                {% if form.author.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {% for error in form.author.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                {{ form.publisher.label(class="form-label") }}
+                                {{ form.publisher(class="form-control", placeholder="Enter publisher") }}
+                                {% if form.publisher.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {% for error in form.publisher.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                {{ form.category.label(class="form-label") }}
+                                {{ form.category(class="form-control", placeholder="Book category") }}
+                                {% if form.category.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {% for error in form.category.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                {{ form.quantity.label(class="form-label") }}
+                                {{ form.quantity(class="form-control", value=1) }}
+                                {% if form.quantity.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {% for error in form.quantity.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                                <small class="form-text text-muted">Number of copies available</small>
+                            </div>
+                        </div>
+                        
+                        <div class="col-12 mt-4">
+                            <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                                <a href="{{ url_for('books') }}" class="btn btn-secondary me-md-2">Cancel</a>
+                                {{ form.submit(class="btn btn-primary") }}
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

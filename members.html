@@ -1,0 +1,154 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1><i class="fas fa-users me-2"></i>Members</h1>
+    <a href="{{ url_for('add_member') }}" class="btn btn-primary">
+        <i class="fas fa-user-plus me-1"></i>Add New Member
+    </a>
+</div>
+
+<!-- Search Form -->
+<div class="card mb-4">
+    <div class="card-body">
+        <form method="GET" action="{{ url_for('members') }}" class="row g-3">
+            <div class="col-md-8">
+                <div class="input-group">
+                    <input type="text" class="form-control" id="search" name="search" placeholder="Search members..." value="{{ search_query }}">
+                    <button class="btn btn-primary" type="submit">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <a href="{{ url_for('members') }}" class="btn btn-secondary w-100">Reset</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+{% if members.items %}
+<div class="card">
+    <div class="table-responsive">
+        <table class="table table-hover mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Phone</th>
+                    <th>Registration Date</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for member in members.items %}
+                <tr>
+                    <td>{{ member.id }}</td>
+                    <td>{{ member.first_name }} {{ member.last_name }}</td>
+                    <td>{{ member.email }}</td>
+                    <td>{% if member.phone %}{{ member.phone }}{% else %}<span class="text-muted">N/A</span>{% endif %}</td>
+                    <td>{{ member.registration_date.strftime('%Y-%m-%d') }}</td>
+                    <td>
+                        <span class="badge {% if member.active %}bg-success{% else %}bg-danger{% endif %}">
+                            {% if member.active %}Active{% else %}Inactive{% endif %}
+                        </span>
+                    </td>
+                    <td>
+                        <div class="btn-group" role="group">
+                            <a href="{{ url_for('edit_member', id=member.id) }}" class="btn btn-sm btn-outline-primary">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                            <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteModal-{{ member.id }}">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                        
+                        <!-- Delete Modal -->
+                        <div class="modal fade" id="deleteModal-{{ member.id }}" tabindex="-1" aria-labelledby="deleteModalLabel-{{ member.id }}" aria-hidden="true">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="deleteModalLabel-{{ member.id }}">Confirm Deletion</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        Are you sure you want to delete <strong>{{ member.first_name }} {{ member.last_name }}</strong>?
+                                        <p class="text-danger mt-2 mb-0">This action cannot be undone.</p>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                        <form action="{{ url_for('delete_member', id=member.id) }}" method="POST">
+                                            <button type="submit" class="btn btn-danger">Delete</button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Pagination -->
+<nav aria-label="Member pagination" class="mt-4">
+    <ul class="pagination justify-content-center">
+        {% if members.has_prev %}
+        <li class="page-item">
+            <a class="page-link" href="{{ url_for('members', page=members.prev_num, search=search_query) }}">Previous</a>
+        </li>
+        {% else %}
+        <li class="page-item disabled">
+            <a class="page-link" href="#" tabindex="-1">Previous</a>
+        </li>
+        {% endif %}
+        
+        {% for num in members.iter_pages(left_edge=1, right_edge=1, left_current=2, right_current=2) %}
+            {% if num %}
+                {% if num == members.page %}
+                <li class="page-item active">
+                    <a class="page-link" href="{{ url_for('members', page=num, search=search_query) }}">{{ num }}</a>
+                </li>
+                {% else %}
+                <li class="page-item">
+                    <a class="page-link" href="{{ url_for('members', page=num, search=search_query) }}">{{ num }}</a>
+                </li>
+                {% endif %}
+            {% else %}
+                <li class="page-item disabled">
+                    <a class="page-link" href="#">...</a>
+                </li>
+            {% endif %}
+        {% endfor %}
+        
+        {% if members.has_next %}
+        <li class="page-item">
+            <a class="page-link" href="{{ url_for('members', page=members.next_num, search=search_query) }}">Next</a>
+        </li>
+        {% else %}
+        <li class="page-item disabled">
+            <a class="page-link" href="#" tabindex="-1">Next</a>
+        </li>
+        {% endif %}
+    </ul>
+</nav>
+{% else %}
+<div class="card">
+    <div class="card-body text-center py-5">
+        <i class="fas fa-users fa-4x mb-3 text-muted"></i>
+        <h3>No members found</h3>
+        {% if search_query %}
+        <p class="text-muted">No results match your search criteria.</p>
+        <a href="{{ url_for('members') }}" class="btn btn-primary mt-3">Clear Search</a>
+        {% else %}
+        <p class="text-muted">Start by adding members to your library.</p>
+        <a href="{{ url_for('add_member') }}" class="btn btn-primary mt-3">Add Your First Member</a>
+        {% endif %}
+    </div>
+</div>
+{% endif %}
+{% endblock %}

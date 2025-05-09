@@ -1,0 +1,229 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <h1 class="mb-4"><i class="fas fa-tachometer-alt me-2"></i>Dashboard</h1>
+    </div>
+</div>
+
+<!-- Stats Cards -->
+<div class="row">
+    <div class="col-md-3 mb-4">
+        <div class="card bg-primary text-white h-100">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="text-uppercase">Total Books</h6>
+                        <h1 class="display-4">{{ total_books }}</h1>
+                    </div>
+                    <i class="fas fa-books fa-3x opacity-50"></i>
+                </div>
+            </div>
+            <div class="card-footer d-flex align-items-center justify-content-between">
+                <a href="{{ url_for('books') }}" class="text-white text-decoration-none">View Details</a>
+                <i class="fas fa-angle-right"></i>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3 mb-4">
+        <div class="card bg-success text-white h-100">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="text-uppercase">Available Books</h6>
+                        <h1 class="display-4">{{ books_available }}</h1>
+                    </div>
+                    <i class="fas fa-check-circle fa-3x opacity-50"></i>
+                </div>
+            </div>
+            <div class="card-footer d-flex align-items-center justify-content-between">
+                <a href="{{ url_for('books') }}" class="text-white text-decoration-none">View Details</a>
+                <i class="fas fa-angle-right"></i>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3 mb-4">
+        <div class="card bg-info text-white h-100">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="text-uppercase">Total Members</h6>
+                        <h1 class="display-4">{{ total_members }}</h1>
+                    </div>
+                    <i class="fas fa-users fa-3x opacity-50"></i>
+                </div>
+            </div>
+            <div class="card-footer d-flex align-items-center justify-content-between">
+                <a href="{{ url_for('members') }}" class="text-white text-decoration-none">View Details</a>
+                <i class="fas fa-angle-right"></i>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3 mb-4">
+        <div class="card bg-warning text-white h-100">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="text-uppercase">Books Issued</h6>
+                        <h1 class="display-4">{{ books_issued }}</h1>
+                    </div>
+                    <i class="fas fa-book-reader fa-3x opacity-50"></i>
+                </div>
+            </div>
+            <div class="card-footer d-flex align-items-center justify-content-between">
+                <a href="{{ url_for('circulation') }}" class="text-white text-decoration-none">View Details</a>
+                <i class="fas fa-angle-right"></i>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Quick Actions -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-bolt me-2"></i>Quick Actions</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-3 mb-2">
+                        <a href="{{ url_for('add_book') }}" class="btn btn-outline-primary w-100">
+                            <i class="fas fa-plus-circle me-2"></i>Add Book
+                        </a>
+                    </div>
+                    <div class="col-md-3 mb-2">
+                        <a href="{{ url_for('add_member') }}" class="btn btn-outline-success w-100">
+                            <i class="fas fa-user-plus me-2"></i>Add Member
+                        </a>
+                    </div>
+                    <div class="col-md-3 mb-2">
+                        <a href="{{ url_for('issue_book') }}" class="btn btn-outline-info w-100">
+                            <i class="fas fa-arrow-right me-2"></i>Issue Book
+                        </a>
+                    </div>
+                    <div class="col-md-3 mb-2">
+                        <a href="{{ url_for('return_book') }}" class="btn btn-outline-warning w-100">
+                            <i class="fas fa-arrow-left me-2"></i>Return Book
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Activities and Overdue Books -->
+<div class="row">
+    <!-- Recent Issues -->
+    <div class="col-md-6 mb-4">
+        <div class="card h-100">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-clock me-2"></i>Recent Issues</h5>
+            </div>
+            <div class="card-body">
+                {% if recent_issues %}
+                <ul class="list-group list-group-flush">
+                    {% for issue in recent_issues %}
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <div>
+                            <strong>{{ issue.book.title }}</strong> issued to <strong>{{ issue.member.full_name }}</strong>
+                            <div class="text-muted small">Issued on: {{ issue.issue_date.strftime('%Y-%m-%d') }}</div>
+                        </div>
+                        <span class="badge bg-primary rounded-pill">{{ (issue.due_date - issue.issue_date).days }} days</span>
+                    </li>
+                    {% endfor %}
+                </ul>
+                {% else %}
+                <p class="text-center text-muted my-4">No recent book issues</p>
+                {% endif %}
+            </div>
+            <div class="card-footer">
+                <a href="{{ url_for('history') }}" class="btn btn-sm btn-outline-secondary">View All History</a>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Recent Returns -->
+    <div class="col-md-6 mb-4">
+        <div class="card h-100">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-undo me-2"></i>Recent Returns</h5>
+            </div>
+            <div class="card-body">
+                {% if recent_returns %}
+                <ul class="list-group list-group-flush">
+                    {% for issue in recent_returns %}
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <div>
+                            <strong>{{ issue.book.title }}</strong> returned by <strong>{{ issue.member.full_name }}</strong>
+                            <div class="text-muted small">Returned on: {{ issue.return_date.strftime('%Y-%m-%d') }}</div>
+                        </div>
+                        <span class="badge {% if issue.return_date > issue.due_date %}bg-danger{% else %}bg-success{% endif %} rounded-pill">
+                            {% if issue.return_date > issue.due_date %}Late{% else %}On Time{% endif %}
+                        </span>
+                    </li>
+                    {% endfor %}
+                </ul>
+                {% else %}
+                <p class="text-center text-muted my-4">No recent book returns</p>
+                {% endif %}
+            </div>
+            <div class="card-footer">
+                <a href="{{ url_for('history') }}" class="btn btn-sm btn-outline-secondary">View All History</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Overdue Books -->
+<div class="row">
+    <div class="col-12 mb-4">
+        <div class="card">
+            <div class="card-header bg-danger text-white">
+                <h5 class="mb-0"><i class="fas fa-exclamation-triangle me-2"></i>Overdue Books</h5>
+            </div>
+            <div class="card-body">
+                {% if overdue_issues %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Book Title</th>
+                                <th>Member</th>
+                                <th>Issue Date</th>
+                                <th>Due Date</th>
+                                <th>Days Overdue</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for issue in overdue_issues %}
+                            <tr>
+                                <td>{{ issue.book.title }}</td>
+                                <td>{{ issue.member.full_name }}</td>
+                                <td>{{ issue.issue_date.strftime('%Y-%m-%d') }}</td>
+                                <td>{{ issue.due_date.strftime('%Y-%m-%d') }}</td>
+                                <td class="text-danger">
+                                    {{ (now - issue.due_date).days }} days
+                                </td>
+                                <td>
+                                    <a href="{{ url_for('return_book') }}" class="btn btn-sm btn-warning">Return</a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <p class="text-center text-muted my-4">No overdue books at the moment</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
